@@ -1,20 +1,28 @@
 using UnityEngine;
-using UnityEngine.UI;  // Import UI namespace
+using UnityEngine.UI;
 
 public class Reel : MonoBehaviour
 {
-    public Sprite[] symbolImages;  // Array of symbol sprites
-    private Image reelImage;        // UI Image component
+    public Sprite[] symbolSprites;     // All symbols to display
+    public string[] symbolNames;       // Must match order of sprites
+    private Image reelImage;           // Image component for reel
+    private int currentSymbolIndex;    // Track current symbol index
 
     void Start()
     {
-        reelImage = GetComponent<Image>();  // Get UI Image component
-        ShowRandomSymbol();                  // Show a random symbol at start
+        reelImage = GetComponent<Image>();
+        ShowRandomSymbol();
     }
 
     public void ShowRandomSymbol()
     {
-        int randomIndex = Random.Range(0, symbolImages.Length);
-        reelImage.sprite = symbolImages[randomIndex];  // Change the Image's sprite
+        // Use secure RNG instead of UnityEngine.Random
+        currentSymbolIndex = SecureRandom.GetSecureRandomInt(0, symbolSprites.Length);
+        reelImage.sprite = symbolSprites[currentSymbolIndex];
+    }
+
+    public string GetCurrentSymbolName()
+    {
+        return symbolNames[currentSymbolIndex];
     }
 }
