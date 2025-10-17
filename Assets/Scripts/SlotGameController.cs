@@ -4,17 +4,18 @@ using System.Collections;
 
 public class SlotGameController : MonoBehaviour
 {
-    public Reel[] reels;  // Assign three Reel instances here
-    public Button spinButton; // Reference to your UI Button
-    public Sprite buttonNormalSprite; // Normal button sprite
-    public Sprite buttonPressedSprite; // Pressed button sprite
+    public Reel[] reels;  // Assign your reel instances here
+    public Button spinButton;
+    public Sprite buttonNormalSprite;
+    public Sprite buttonPressedSprite;
     private Image buttonImage;
 
-    public int playerCredits = 1000; // Starting credits
-    public int currentBet = 10;      // Default bet amount
-    public Text creditsText;         // UI element for credits
-    public Text betText;             // UI element for bet
-    public Text resultText;          // UI element for result messages
+    public int playerCredits = 1000;
+    public int currentBet = 10;
+    public Text creditsText;
+    public Text betText;
+    public Text resultText;
+    public int ResultDelay = 1; // Delay before showing result
 
     void Start()
     {
@@ -37,7 +38,6 @@ public class SlotGameController : MonoBehaviour
 
     public void OnSpinButtonClick()
     {
-        // Visual button press effect
         buttonImage.sprite = buttonPressedSprite;
 
         if (playerCredits < currentBet)
@@ -50,25 +50,47 @@ public class SlotGameController : MonoBehaviour
         playerCredits -= currentBet;
         UpdateUI();
 
-        // Spin reels and collect results
+        StartCoroutine(SpinAllReels());
+    }
+
+    IEnumerator SpinAllReels()
+    {
+        // Start spinning each reel with staggered delay
+        for (int i = 0; i < reels.Length; i++)
+        {
+            reels[i].StartCoroutine(reels[i].SpinAnimation(i * 0.5f));
+        }
+
+        // Wait until all reels finish spinning
+        yield return new WaitUntil(() => AllReelsStopped());
+
+        // Collect result symbols
         string[] resultSymbols = new string[reels.Length];
         for (int i = 0; i < reels.Length; i++)
         {
-            reels[i].ShowRandomSymbol();
             resultSymbols[i] = reels[i].GetCurrentSymbolName();
         }
 
-        // Payout evaluation
+        yield return new WaitForSeconds(ResultDelay);
+
+        // Calculate payout and update credits/UI
         int payout = CalculatePayout(resultSymbols);
         playerCredits += payout;
         UpdateUI();
 
-        if (payout > 0)
-            resultText.text = $"YOU WIN! +{payout}";
-        else
-            resultText.text = "No win, try again!";
+        resultText.text = payout > 0 ? $"YOU WIN! +{payout}" : "No win, try again!";
 
         StartCoroutine(RevertButtonImageAfterDelay(0.2f));
+    }
+
+    private bool AllReelsStopped()
+    {
+        foreach (var reel in reels)
+        {
+            if (reel.isSpinning)
+                return false;
+        }
+        return true;
     }
 
     IEnumerator RevertButtonImageAfterDelay(float delay)
@@ -79,7 +101,6 @@ public class SlotGameController : MonoBehaviour
 
     public int CalculatePayout(string[] symbols)
     {
-        // Basic paytable
         if (symbols[0] == "Seven" && symbols[1] == "Seven" && symbols[2] == "Seven")
             return currentBet * 100;
         if (symbols[0] == "Cherry" && symbols[1] == "Cherry" && symbols[2] == "Cherry")
@@ -90,7 +111,6 @@ public class SlotGameController : MonoBehaviour
         {
             if (s == "Cherry") cherryCount++;
         }
-
         if (cherryCount == 2)
             return currentBet * 3;
 
