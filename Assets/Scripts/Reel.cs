@@ -5,14 +5,14 @@ using System.Collections;
 public class Reel : MonoBehaviour
 {
     public Sprite[] symbolSprites;     // All symbols to display
-    public string[] symbolNames;       // Corresponding names for paytable logic (must match sprites order)
+    public string[] symbolNames;       // Corresponding names to use for paytable logic (must match sprites order)
     private Image reelImage;           // UI Image reference for the reel display
     private int currentSymbolIndex;    // Index of current symbol shown
 
     [Header("Spin Settings")]
-    public float spinDuration = 2.5f;      // Total spin duration for this reel
-    public float minSpinSpeed = 0.02f;     // Fastest cycling delay at start (in seconds)
-    public float maxSpinSpeed = 0.2f;      // Slowest cycling delay near stop
+    public float spinDuration = 2.5f;      
+    public float minSpinSpeed = 0.02f;     
+    public float maxSpinSpeed = 0.2f;      
     public bool isSpinning = false;        // Whether reel is currently spinning
 
     void Start()
@@ -21,23 +21,23 @@ public class Reel : MonoBehaviour
         ShowRandomSymbol();
     }
 
-    // Show a random symbol instantly (used for initialization or quick change)
+    // Show a random symbol instantly
     public void ShowRandomSymbol()
     {
         currentSymbolIndex = SecureRandom.GetSecureRandomInt(0, symbolSprites.Length);
         reelImage.sprite = symbolSprites[currentSymbolIndex];
     }
 
-    // Get the current symbol name for payout evaluation
+    
     public string GetCurrentSymbolName()
     {
         return symbolNames[currentSymbolIndex];
     }
 
-    // Coroutine that spins the reel with animation and gradually slows down
+    // Coroutine that spins the reel with animation and then slows down
     public IEnumerator SpinAnimation(float startDelay)
     {
-        yield return new WaitForSeconds(startDelay); // Stagger start time for sequential reels
+        yield return new WaitForSeconds(startDelay); //Time between reel starts
         isSpinning = true;
 
         float elapsed = 0f;

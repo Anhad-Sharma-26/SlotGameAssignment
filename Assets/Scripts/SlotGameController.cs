@@ -4,7 +4,7 @@ using System.Collections;
 
 public class SlotGameController : MonoBehaviour
 {
-    public Reel[] reels;  // Assign your reel instances here
+    public Reel[] reels;  // Array to puassign the reel in
     public Button spinButton;
     public Sprite buttonNormalSprite;
     public Sprite buttonPressedSprite;
@@ -55,13 +55,13 @@ public class SlotGameController : MonoBehaviour
 
     IEnumerator SpinAllReels()
     {
-        // Start spinning each reel with staggered delay
+        // Start spinning each reel with delay
         for (int i = 0; i < reels.Length; i++)
         {
             reels[i].StartCoroutine(reels[i].SpinAnimation(i * 0.5f));
         }
 
-        // Wait until all reels finish spinning
+        // Wait until all reels almost finish spinning
         yield return new WaitUntil(() => AllReelsStopped());
 
         // Collect result symbols
@@ -73,7 +73,7 @@ public class SlotGameController : MonoBehaviour
 
         yield return new WaitForSeconds(ResultDelay);
 
-        // Calculate payout and update credits/UI
+        // Calculate payout and update credits and UI
         int payout = CalculatePayout(resultSymbols);
         playerCredits += payout;
         UpdateUI();
